@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,15 +12,16 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/layout/logo";
 
 export function MobileNav({
-  light,
   phoneHref,
 }: {
-  light: boolean;
+  light?: boolean;
   phoneHref: string;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
   const pathname = usePathname();
 
+  React.useEffect(() => setMounted(true), []);
   React.useEffect(() => setOpen(false), [pathname]);
 
   React.useEffect(() => {
@@ -28,6 +30,90 @@ export function MobileNav({
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  // The drawer + overlay are rendered through a portal to <body> so their
+  // `position: fixed` is relative to the viewport and their stacking context
+  // is clean — otherwise the header's backdrop-blur traps them and they render
+  // BEHIND the page content (appearing as a "blank" menu).
+  const overlay = (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-ink/50 backdrop-blur-sm xl:hidden"
+            onClick={() => setOpen(false)}
+          />
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "tween", duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-y-0 right-0 z-[110] flex w-[88%] max-w-sm flex-col overflow-y-auto bg-canvas shadow-luxe xl:hidden"
+          >
+            <div className="flex items-center justify-between border-b border-line px-5 py-4">
+              <Logo />
+              <button
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
+                className="grid size-10 place-items-center rounded-full border border-line text-ink transition-colors hover:bg-secondary"
+              >
+                <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <nav className="flex-1 px-5 py-6" aria-label="Mobile">
+              <ul className="space-y-1">
+                {mainNav.map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "block rounded-xl px-4 py-3 font-display text-lg font-medium text-ink transition-colors hover:bg-secondary",
+                        pathname === item.href && "text-primary-dark"
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                    {item.children && (
+                      <ul className="ml-4 space-y-0.5 border-l border-line pl-3">
+                        {item.children.slice(0, 4).map((child) => (
+                          <li key={child.label}>
+                            <Link
+                              href={child.href}
+                              className="block rounded-lg px-3 py-1.5 text-sm text-muted transition-colors hover:text-primary-dark"
+                            >
+                              {child.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <div className="space-y-3 border-t border-line p-5">
+              <Button asChild size="lg" className="w-full">
+                <Link href="/book">Book Consultation</Link>
+              </Button>
+              <a
+                href={phoneHref}
+                className="flex items-center justify-center gap-2 text-sm font-medium text-muted"
+              >
+                <Phone className="size-4" /> Call us today
+              </a>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <>
@@ -66,74 +152,7 @@ export function MobileNav({
         </span>
       </button>
 
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-40 bg-ink/40 backdrop-blur-sm xl:hidden"
-              onClick={() => setOpen(false)}
-            />
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "tween", duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed inset-y-0 right-0 z-50 flex w-[88%] max-w-sm flex-col overflow-y-auto bg-canvas xl:hidden"
-            >
-              <div className="flex items-center justify-between border-b border-line px-5 py-4">
-                <Logo />
-              </div>
-
-              <nav className="flex-1 px-5 py-6" aria-label="Mobile">
-                <ul className="space-y-1">
-                  {mainNav.map((item) => (
-                    <li key={item.label}>
-                      <Link
-                        href={item.href}
-                        className={cn(
-                          "block rounded-xl px-4 py-3 font-display text-lg font-medium text-ink transition-colors hover:bg-secondary",
-                          pathname === item.href && "text-primary-dark"
-                        )}
-                      >
-                        {item.label}
-                      </Link>
-                      {item.children && (
-                        <ul className="ml-4 space-y-0.5 border-l border-line pl-3">
-                          {item.children.slice(0, 4).map((child) => (
-                            <li key={child.label}>
-                              <Link
-                                href={child.href}
-                                className="block rounded-lg px-3 py-1.5 text-sm text-muted transition-colors hover:text-primary-dark"
-                              >
-                                {child.label}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-
-              <div className="space-y-3 border-t border-line p-5">
-                <Button asChild size="lg" className="w-full">
-                  <Link href="/book">Book Consultation</Link>
-                </Button>
-                <a
-                  href={phoneHref}
-                  className="flex items-center justify-center gap-2 text-sm font-medium text-muted"
-                >
-                  <Phone className="size-4" /> Call us today
-                </a>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      {mounted ? createPortal(overlay, document.body) : null}
     </>
   );
 }
