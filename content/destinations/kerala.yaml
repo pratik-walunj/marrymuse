@@ -1,0 +1,12 @@
+name: Kerala
+region: South India
+image: >-
+  https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=1200&q=80
+description: Serene backwaters and lush greens for an intimate celebration.
+startingPrice: ₹11,00,000
+highlights:
+  - Backwater houseboats
+  - Beach resorts
+  - Tropical florals
+popular: false
+order: 4

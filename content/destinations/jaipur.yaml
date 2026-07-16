@@ -1,0 +1,12 @@
+name: Jaipur
+region: Rajasthan, India
+image: >-
+  https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80
+description: The Pink City's forts and havelis set a majestic royal stage.
+startingPrice: ₹16,00,000
+highlights:
+  - Fort & palace venues
+  - Regal Rajputana décor
+  - Elephant welcomes
+popular: true
+order: 3

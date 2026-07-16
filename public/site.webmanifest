@@ -1,0 +1,12 @@
+{
+  "name": "MarryMuse — Luxury Wedding Planners",
+  "short_name": "MarryMuse",
+  "description": "Luxury & destination wedding planning.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#c89b3c",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
